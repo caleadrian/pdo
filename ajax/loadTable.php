@@ -2,7 +2,9 @@
 require_once "../db/action.php";
 
 $content = '';
-$result = $obj->fetch_record("tbl_userDetails");
+$limit = $misc->cpv($_REQUEST['limit']);
+
+$result = $obj->fetch_record("tbl_userDetails " . ($limit ? "limit $limit" : ''));
 foreach($result as $d){
     $content .= "
    <tr>

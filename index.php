@@ -10,6 +10,7 @@ require_once "./db/action.php";
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="./css/animate.css">
     <style>
         th{
             cursor: pointer; 
@@ -44,15 +45,16 @@ require_once "./db/action.php";
         <div class="col-lg-6">
         <!-- table -->
             <div class="form-group">
-                <label for="exampleFormControlSelect1">Example select</label>
-                <select class="form-control form-control-sm" id="exampleFormControlSelect1">
-                    <option>10</option>
-                    <option>25</option>
-                    <option>50</option>
-                    <option>100</option>
-                    <option>All</option>
+                <label for="filter">Example select</label>
+                <select class="form-control form-control-sm" id="filter">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="">All</option>
                 </select>
             </div>
+
             <table id="mytable" class="table table-stripped tablesorter">
                 <thead>
                     <th>ID</th>
@@ -82,27 +84,44 @@ require_once "./db/action.php";
     integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30="
     crossorigin="anonymous"></script>
     <script src="./js/jquery.tablesorter.min.js"></script>
-
-
+    <script src="./js/bootstrap-notify.js"></script>
     <script>
     $(function(){
-        loadTable();
+
+        function notify(){
+            $.notify("Enter: Bounce In from TopExit: Bounce Up and Out", {
+                animate: {
+                    enter: "animated fadeInUp",
+                    exit: "animated fadeOutDown"
+                },
+                delay : 1000,
+                type: 'warning'
+            });
+        }
+
+
+        var limit = $("select#filter").val();
+        loadTable(limit);
 
        // $("#tableContent").sortable(); drag n drop
+        $("select#filter").change(function(){
+            limit = $(this).val();
+            loadTable(limit);
+        });
 
-
-        function loadTable(){
+        function loadTable(limit){
             $("#tableContent").html("<p>Loading</p>"); //set loading stuff 
             $.ajax({
                 type:'POST',
                 url: './ajax/loadTable.php',
+                data: {limit:limit},
                 success: function(result){
                 $("#tableContent").html(result); //result var is from the echo of loadTable
+                $("#mytable").trigger('update');
                 $("#mytable").tablesorter(); //enable sorter if tbody is not empty ps. it needs the table sorter css to see the arrow stuff
-
-                }
+                notify();
+            }
             });
-
         }
 
         $("#savebtn").click(function(){
@@ -116,14 +135,13 @@ require_once "./db/action.php";
                 data: {fname : fname, lname : lname, age : age},
                 success: function(result){
                     $("div#alertContainer").html(result);
-                    loadTable();
+                    loadTable(limit);
                 }
             });
         });
 
-
         //delegate event !!!!!!!!!!! call me master lol
-        $( "#tableContent" ).on( "click", "button", function( event ) {
+        $( "#tableContent" ).on("click", "button", function(event) {
             event.preventDefault();
             deleteUser($(this).attr('id'));
         });
@@ -136,12 +154,10 @@ require_once "./db/action.php";
                 data: {id:id},
                 success: function(result){
                     $("div#alertContainer").html(result);
-                    loadTable();
+                    loadTable(limit);
                 }
             });
         }
-
-       
 
     });
   
