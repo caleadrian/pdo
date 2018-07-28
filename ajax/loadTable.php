@@ -13,7 +13,7 @@ foreach($result as $d){
        <td>". $d['lname'] ."</td>
        <td>". $d['age'] ."</td>
        <td>". $d['date'] ."</td>
-       <td><button id='".$d['id']."' class='btn btn-danger btn-sm'>Delete</button>
+       <td><button id='".$d['id']."' class='btn btn-danger btn-sm'  data-toggle='modal' data-target='#exampleModalCenter'>Delete</button>
    </tr>
    ";
 }

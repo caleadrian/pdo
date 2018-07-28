@@ -12,9 +12,10 @@ $fields  =  array(
 );
 $result = $obj->insert_record("tbl_userDetails", $fields);
 if($result){
-    echo $misc->alert("Successfully Saved", "success");
-}else{
-    echo $misc->alert("Error occured, Try again", "danger");
+    $misc->notifyContent("Successfully saved", "success");
+}else{  
+    $misc->notifyContent("Error occured", "danger");
+
 }
 
 

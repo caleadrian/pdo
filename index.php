@@ -15,6 +15,9 @@ require_once "./db/action.php";
         th{
             cursor: pointer; 
         }
+        .alert{
+            max-width: 20rem;
+        }
     </style>
 </head>
 <body>
@@ -74,6 +77,30 @@ require_once "./db/action.php";
         </div>
     </div>
 
+
+    <!-- modal -->
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Confirmation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Please confirm your action.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary btn-confirm"  data-dismiss="modal" name="modalConfirmBtn">Confirm</button>
+            </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal -->
+
+
     <script src="https://code.jquery.com/jquery-3.3.1.js"
     integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
     crossorigin="anonymous"></script>
@@ -88,14 +115,18 @@ require_once "./db/action.php";
     <script>
     $(function(){
 
-        function notify(){
-            $.notify("Enter: Bounce In from TopExit: Bounce Up and Out", {
+        function notify(msg, style){
+            return $.notify( // snackbar notification
+                {
+                message : msg
+                },
+                {
                 animate: {
                     enter: "animated fadeInUp",
                     exit: "animated fadeOutDown"
                 },
-                delay : 1000,
-                type: 'warning'
+                delay : 2000,
+                type: style
             });
         }
 
@@ -110,22 +141,22 @@ require_once "./db/action.php";
         });
 
         function loadTable(limit){
-            $("#tableContent").html("<p>Loading</p>"); //set loading stuff 
+            var noti = notify('Loading the data ...', 'info');
             $.ajax({
                 type:'POST',
                 url: './ajax/loadTable.php',
                 data: {limit:limit},
                 success: function(result){
-                $("#tableContent").html(result); //result var is from the echo of loadTable
-                $("#mytable").trigger('update');
-                $("#mytable").tablesorter(); //enable sorter if tbody is not empty ps. it needs the table sorter css to see the arrow stuff
-                notify();
-            }
+                    noti.close();
+                    $("#tableContent").html(result); //result var is from the echo of loadTable
+                    $("#mytable").trigger('update');
+                    $("#mytable").tablesorter(); //enable sorter if tbody is not empty ps. it needs the table sorter css to see the arrow stuff
+                }
             });
         }
 
         $("#savebtn").click(function(){
-            $("div#alertContainer").html("<p>Sending</p>");
+            var noti = notify('Saving your inputs ...', 'info');
             var lname = $("#lname").val();
             var fname = $("#fname").val();
             var age = $("#age").val();
@@ -133,31 +164,42 @@ require_once "./db/action.php";
                 type:'POST',
                 url: './ajax/saveUserDetails.php',
                 data: {fname : fname, lname : lname, age : age},
+                dataType:"json",
                 success: function(result){
-                    $("div#alertContainer").html(result);
+                    // $("div#alertContainer").html(result);
+                    noti.close();
+                    notify(result.msg, result.type);
                     loadTable(limit);
                 }
             });
         });
 
-        //delegate event !!!!!!!!!!! call me master lol
-        $( "#tableContent" ).on("click", "button", function(event) {
-            event.preventDefault();
-            deleteUser($(this).attr('id'));
-        });
-
         function deleteUser(id){
-            $("div#alertContainer").html("<p>Deleting</p>");
+            var noti = notify('Deleting ...', 'info');
             $.ajax({
                 type:'POST',
                 url: './ajax/deleteUser.php',
                 data: {id:id},
+                dataType:"json",
                 success: function(result){
-                    $("div#alertContainer").html(result);
+                    noti.close();
+                    notify(result.msg, result.type);
                     loadTable(limit);
                 }
             });
         }
+
+        $("button[name='modalConfirmBtn']").click(function(){
+            deleteUser($(this).attr('id'));
+        });
+
+        //delegate event !!!!!!!!!!! call me master lol
+        $("#tableContent").on("click", "button", function(event) {
+            event.preventDefault();
+            $("button[name='modalConfirmBtn']").attr('id', $(this).attr('id')); //pass the delete btn id to modal btn
+        });
+
+
 
     });
   

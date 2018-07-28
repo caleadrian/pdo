@@ -72,6 +72,9 @@ class Misc{
         <span aria-hidden='true'>&times;</span></button></div>";
         return $content;
     }
+    public function notifyContent($msg, $type){
+        return print json_encode(array('msg' => $msg, 'type' => $type));
+    }
 }
 
 

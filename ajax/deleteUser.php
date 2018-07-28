@@ -5,9 +5,9 @@ $id = $misc->cpv($_REQUEST['id']);
 $result = $obj->delete_record("id=$id");
 
 if($result){
-    echo $misc->alert("Successfully Deleted", "success");
+    $misc->notifyContent("Successfully deleted", "success");
 }else{
-    echo $misc->alert("Error occured, Try again", "danger");
+    $misc->notifyContent("Error occured", "danger");   
 }
 
 
